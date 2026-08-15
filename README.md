@@ -18,6 +18,7 @@ a few environment variables, and you're ready to go.
 
 - Python 3.9+
 - git, make, gcc, and libssl-dev (Linux builds only)
+- Flask + requests (web UI only): `pip install 'zuzhuang[web]'`
 
 ## Installation
 
@@ -42,6 +43,32 @@ zuzhuang build 3.12.6 --packages numpy,pandas -o ./my-python
 python -c "import numpy; print(numpy.__version__)"
 ```
 
+## Web UI
+
+A browser-based interface lets you configure a build, link packages against
+PyPI, assemble + verify, and download the resulting zip — all operating
+systems supported.
+
+```bash
+pip install 'zuzhuang[web]'
+zuzhuang web
+# open http://127.0.0.1:5000
+```
+
+The UI lets you:
+
+1. **Pick a target OS** (Windows / macOS / Linux) — cross-host packaging is
+   supported; the host warns when it can't natively run the target.
+2. **Pick a Python version** (fetched live from python.org).
+3. **Add packages** — search PyPI, pin versions, and resolve specifiers
+   (`numpy`, `pandas==2.2.0`, `requests[socks]>=2.31`).
+4. **Assemble & verify** — runs the assembly in the background, streams live
+   progress via Server-Sent Events, and **actually runs the assembled
+   interpreter to import every requested package** so there are no hidden
+   dependency problems. Cross-host builds defer verification to the target
+   machine and include a `requirements.txt` + install script in the zip.
+5. **Download the zip** — once verification passes, download a portable zip.
+
 ## Usage
 
 ### CLI
@@ -49,6 +76,7 @@ python -c "import numpy; print(numpy.__version__)"
 ```
 zuzhuang build <version> -o <output_dir> [options]
 zuzhuang list-python [options]
+zuzhuang web [options]
 ```
 
 ### Build Options

@@ -35,6 +35,7 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
             "  zuzhuang build 3.11.9 -o ./py311 --target windows\n"
             "  zuzhuang list-python\n"
             "  zuzhuang list-python --os windows\n"
+            "  zuzhuang web\n"
         ),
     )
     parser.add_argument("-V", "--version", action="version", version=f"zuzhuang {__version__}")
@@ -49,9 +50,7 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     build_parser.add_argument(
         "-o", "--output", dest="output_dir", required=True, help="Output directory"
     )
-    build_parser.add_argument(
-        "-p", "--packages", help="Comma-separated list of pip packages"
-    )
+    build_parser.add_argument("-p", "--packages", help="Comma-separated list of pip packages")
     build_parser.add_argument(
         "--target",
         dest="target_os",
@@ -64,14 +63,10 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     build_parser.add_argument(
         "--json", action="store_true", dest="json_output", help="Output result as JSON"
     )
-    build_parser.add_argument(
-        "-v", "--verbose", action="store_true", help="Verbose output"
-    )
+    build_parser.add_argument("-v", "--verbose", action="store_true", help="Verbose output")
 
     # list-python
-    list_parser = sub.add_parser(
-        "list-python", help="List available Python versions"
-    )
+    list_parser = sub.add_parser("list-python", help="List available Python versions")
     list_parser.add_argument(
         "--os",
         dest="target_os",
@@ -81,8 +76,17 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     list_parser.add_argument(
         "--json", action="store_true", dest="json_output", help="Output as JSON"
     )
-    list_parser.add_argument(
-        "-v", "--verbose", action="store_true", help="Verbose output"
+    list_parser.add_argument("-v", "--verbose", action="store_true", help="Verbose output")
+
+    # web
+    web_parser = sub.add_parser("web", help="Launch the web UI for assembling portable Python")
+    web_parser.add_argument("--host", default="127.0.0.1", help="Bind host (default 127.0.0.1)")
+    web_parser.add_argument("-p", "--port", type=int, default=5000, help="Bind port (default 5000)")
+    web_parser.add_argument(
+        "--work-dir",
+        dest="work_dir",
+        default=None,
+        help="Directory for build artefacts (default temp)",
     )
 
     return parser.parse_args(argv)
@@ -114,6 +118,17 @@ def main(argv: list[str] | None = None) -> None:
         result = zuzhuang_list_python(
             target_os=getattr(args, "target_os", None),
         )
+    elif args.command == "web":
+        try:
+            from zuzhuang.web import run as run_web
+        except ImportError as e:
+            print(
+                f"Web UI requires the 'web' extra: pip install 'zuzhuang[web]'\n  ({e})",
+                file=sys.stderr,
+            )
+            sys.exit(1)
+        run_web(host=args.host, port=args.port, work_dir=args.work_dir)
+        return
     else:
         _parse_args(["--help"])
         sys.exit(1)

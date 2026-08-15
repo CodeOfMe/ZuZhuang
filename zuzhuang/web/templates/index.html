@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ZuZhuang — Portable Python Assembler</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <header>
+    <h1>ZuZhuang <span class="ver">v{{ version }}</span></h1>
+    <p class="tag">Assemble a portable, self-contained Python environment — verify every dependency actually imports — then download the zip.</p>
+  </header>
+
+  <main>
+    <!-- Step 1: target OS -->
+    <section class="card">
+      <h2>1 · Target operating system</h2>
+      <div class="row">
+        <label><input type="radio" name="target_os" value="windows" checked> Windows</label>
+        <label><input type="radio" name="target_os" value="macos"> macOS</label>
+        <label><input type="radio" name="target_os" value="linux"> Linux</label>
+      </div>
+      <p id="host_warn" class="warn hidden"></p>
+    </section>
+
+    <!-- Step 2: python version -->
+    <section class="card">
+      <h2>2 · Python version</h2>
+      <div class="row">
+        <select id="python_version" disabled>
+          <option>loading…</option>
+        </select>
+        <button id="refresh_versions" class="btn" type="button">Refresh</button>
+      </div>
+    </section>
+
+    <!-- Step 3: packages -->
+    <section class="card">
+      <h2>3 · Packages <span class="hint">(linked with PyPI)</span></h2>
+      <div class="row">
+        <input id="pkg_search" type="text" placeholder="Search PyPI, e.g. numpy" autocomplete="off">
+        <button id="search_btn" class="btn" type="button">Search</button>
+      </div>
+      <ul id="search_results" class="results hidden"></ul>
+
+      <div class="row">
+        <input id="pkg_input" type="text" placeholder="or add a specifier, e.g. pandas==2.2.0">
+        <button id="add_btn" class="btn" type="button">Add</button>
+      </div>
+
+      <table id="pkg_table">
+        <thead><tr><th>Package</th><th>Version</th><th></th></tr></thead>
+        <tbody></tbody>
+      </table>
+      <button id="resolve_btn" class="btn ghost" type="button">Resolve &amp; verify on PyPI</button>
+      <div id="resolve_out" class="log hidden"></div>
+    </section>
+
+    <!-- Step 4: build -->
+    <section class="card">
+      <h2>4 · Assemble &amp; verify</h2>
+      <button id="build_btn" class="btn primary" type="button">Start assembly</button>
+      <div id="progress" class="log hidden"></div>
+      <div id="download_area" class="hidden">
+        <a id="download_link" class="btn primary" href="#">Download zip</a>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <p>ZuZhuang — cross-platform portable Python. Built on python.org releases &amp; PyPI.</p>
+  </footer>
+
+  <script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>
